@@ -37,24 +37,18 @@ timefile=time-$root_path
 
 usage() {
     cat <<__EOF__
-usage: `basename $0` LIB [STAGE]
+usage: `basename $0` [STAGE]
 
 create the subdirectory ./tmp, install in it the necessary software,
-and generate, translate and check the proofs of the HOL-Light LIB
-
-LIB: Real_With_nat, Real_With_N, HOL, Multivariate, Unif or Logic
+and generate, translate and check the proofs of the HOL-Light base library
+up to the definition of real numbers.
 
 STAGE:
 __EOF__
     grep -h '^stage ' $0 | sed -e 's/stage \([0-9]*\)/\1:/' -e 's/\$.*//'
 }
 
-error() {
-    echo error: $1
-    echo
-    usage
-    exit 1
-}
+error() { echo error: $1; echo; usage; exit 1; }
 
 mkdir -p tmp
 cd tmp
@@ -74,10 +68,7 @@ fi
 
 line() { echo '------------------------------------------------------------'; }
 
-start() {
-    line
-    echo STAGE $stage: $* ...
-}
+start() { line; echo STAGE $stage: $* ...; }
 
 #usage: checkout_commit url commit
 checkout_commit() {
@@ -137,8 +128,11 @@ patch_hollight() {
 
 install_lean() {
     start install lean
-    if ! which -s elan then
-       curl https://elan.lean-lang.org/elan-init.sh -sSf | sh
+    if ! which -s elan
+    then
+        curl https://elan.lean-lang.org/elan-init.sh -sSf > elan-init.sh
+        chmod a+x elan-init.sh
+        ./elan-init.sh -y --default-toolchain none
     fi
     elan toolchain install leanprover/lean4:v$lean_version
 }
